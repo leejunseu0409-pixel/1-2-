@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>우리 반 공지 알리미</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .write-box {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .check {
+            display: block;
+            margin-top: 12px;
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .add-button {
+            width: 100%;
+            margin-top: 12px;
+            background: #222;
+            color: white;
+        }
+
+        .notice {
+            background: white;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .important {
+            border-left: 6px solid red;
+        }
+
+        .date {
+            color: #777;
+            font-size: 14px;
+        }
+
+        .delete-button {
+            background: #eeeeee;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>📢 우리 반 공지 알리미</h1>
+
+    <!-- 공지 작성 -->
+    <div class="write-box">
+        <h2>✏️ 공지 작성</h2>
+
+        <input id="title" type="text" placeholder="공지 제목">
+
+        <textarea id="content" placeholder="공지 내용을 입력하세요"></textarea>
+<input id="dueDate" type="date">
+        <label class="check">
+            <input id="important" type="checkbox">
+            ⭐ 중요 공지
+        </label>
+
+        <button class="add-button" onclick="addNotice()">
+            공지 등록
+        </button>
+    </div>
+
+    <!-- 기존 공지 -->
+    <div class="notice important">
+        <h2>⭐ 중요 공지</h2>
+        <p>내일 준비물 꼭 챙겨오세요!</p>
+        <div class="date">2026년 8월 19일</div>
+    </div>
+
+    <div class="notice">
+        <h2>📚 수학 수행평가</h2>
+        <p>다음 주 화요일에 수학 수행평가가 있습니다.</p>
+        <div class="date">2026년 8월 19일</div>
+    </div>
+
+    <div class="notice">
+        <h2>🎒 준비물</h2>
+        <p>체육복을 준비해주세요.</p>
+        <div class="date">2026년 8월 19일</div>
+    </div>
+
+    <!-- 새 공지가 들어갈 곳 -->
+    <div id="noticeList"></div>
+
+</div>
+
+<script>
+function loadNotices() {
+    const saved = localStorage.getItem("classNotices");
+
+    if (!saved) return;
+
+    const notices = JSON.parse(saved);
+
+    notices.slice().reverse().forEach(notice => {
+        createNotice(
+            notice.title,
+            notice.content,
+            notice.important,
+            notice.date, 
+            notice.edited,
+            notice.dueDate
+        );
+    });
+}
+
+function saveNotices() {
+    const notices = [];
+
+    document.querySelectorAll("#noticeList .notice").forEach(notice => {
+        notices.push({
+            title: notice.querySelector("h2").innerText.replace("⭐ ", ""),
+            content: notice.querySelector("p").innerText,
+            important: notice.classList.contains("important"),
+           date: notice.querySelector(".date").innerText,
+edited: notice.querySelector(".edited") !== null,
+dueDate: notice.dataset.dueDate || ""
+        });
+    });
+
+    localStorage.setItem("classNotices", JSON.stringify(notices));
+}
+
+function createNotice(title, content, important, date, edited = false, dueDate = "") {
+    const notice = document.createElement("div");
+
+    notice.className = "notice";
+notice.dataset.dueDate = dueDate;
+    if (important) {
+        notice.classList.add("important");
+    }
+
+    notice.innerHTML = `
+        <h2>${important ? "⭐ " : ""}${title}</h2>
+        <p>${content}</p>
+        <div class="date">${date}</div>
+${dueDate ? `<div class="dday">D-${Math.ceil((new Date(dueDate) - new Date()) / 86400000)}</div>` : ""}
+        ${edited ? '<small class="edited">(수정됨)</small>' : ''}
+        <button class="edit-button">✏️ 수정</button>
+        <button class="delete-button">🗑 삭제</button>
+    `;
+
+    notice.querySelector(".delete-button").onclick = function() {
+        notice.remove();
+        saveNotices();
+    };
+
+    notice.querySelector(".edit-button").onclick = function() {
+        const newTitle = prompt("새 제목을 입력하세요", title);
+        if (newTitle === null) return;
+
+        const newContent = prompt("새 내용을 입력하세요", content);
+        if (newContent === null) return;
+
+        notice.querySelector("h2").innerText =
+            important ? "⭐ " + newTitle : newTitle;
+
+        notice.querySelector("p").innerText = newContent;
+notice.querySelector("p").innerText = newContent;
+
+notice.querySelector(".edited")?.remove();
+
+const edited = document.createElement("small");
+edited.className = "edited";
+edited.innerText = "(수정됨)";
+notice.appendChild(edited);
+
+saveNotices();
+        saveNotices();
+    };
+
+    document.getElementById("noticeList").prepend(notice);
+}
+function addNotice() {
+    const title = document.getElementById("title").value;
+    const content = document.getElementById("content").value;
+    const important = document.getElementById("important").checked;
+const dueDate = document.getElementById("dueDate").value;
+    if (title.trim() === "" || content.trim() === "") {
+        alert("제목과 내용을 입력해주세요!");
+        return;
+    }
+
+    const today = new Date().toLocaleDateString("ko-KR");
+
+    createNotice(title, content, important, today, false, dueDate);
+
+    saveNotices();
+
+    document.getElementById("title").value = "";
+    document.getElementById("content").value = "";
+    document.getElementById("important").checked = false;
+}
+
+loadNotices();
+</script>
+
+</body>
+</html>
