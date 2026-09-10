@@ -2,6 +2,21 @@
 <html lang="ko">
 <head>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+const SUPABASE_URL = "https://ktirenvqucjuxxcccjof.supabase.co/";
+const SUPABASE_ANON_KEY = "sb_publishable_2s_KfAU-eftWEEp9CLNfuQ_ZX7U7HSb";
+
+const supabase = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
+
+supabase.auth.getSession().then(({ data: { session } }) => {
+    if (!session) {
+        window.location.href = "login.html";
+    }
+});
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>우리 반 공지 알리미</title>
@@ -248,21 +263,6 @@ const dueDate = document.getElementById("dueDate").value;
 
 loadNotices();
 </script>
-<script>
-const SUPABASE_URL = "https://ktirenvqcujxucccjof.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_2s_KfdU-eftWEEp9CLWFuQ_ZXJUZHsB";
 
-const supabase = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-);
-</script>
-<script>
-supabase.auth.getSession().then(({ data: { session } }) => {
-    if (!session) {
-        window.location.href = "login.html";
-    }
-});
-</script>
 </body>
 </html>
