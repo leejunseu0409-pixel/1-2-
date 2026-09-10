@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로그인 - 우리 반 공지 알리미</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .box {
+      background: white;
+      width: 360px;
+      padding: 30px;
+      border-radius: 18px;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 13px;
+      margin-bottom: 12px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      background: #4f7cff;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .signup {
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    .signup a {
+      color: #4f7cff;
+      cursor: pointer;
+    }
+
+    #message {
+      margin-top: 15px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+  <h1>1-2알림</h1>
+
+  <input id="email" type="email" placeholder="이메일">
+  <input id="password" type="password" placeholder="비밀번호">
+
+  <button onclick="login()">로그인</button>
+
+  <div class="signup">
+    계정이 없나요?
+    <a href="#" onclick="signup(); return false;">회원가입</a>
+  </div>
+
+  <div id="message"></div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://ktirenvqucjuxxcccjof.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_2s_KfdU-eftWEEp9CLWFuQ_ZXJUZHsB";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+async function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const { error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    document.getElementById("message").textContent =
+      "로그인 실패 다시 써보거라: " + error.message;
+    return;
+  }
+
+  window.location.href = "index.html";
+}
+async function signup() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const { error } = await supabaseClient.auth.signUp({
+    email: email,
+    password: password
+  });
+
+  if (error) {
+    document.getElementById("message").textContent =
+      "회원가입 실패 다시해봐 ㅠ: " + error.message;
+    return;
+  }
+
+  document.getElementById("message").textContent =
+    "회원가입 완료! 너 좀 대단하다.. 이메일 인증하고 얼른 들어와.";
+}
+</script>
+
+</body>
+</html>
