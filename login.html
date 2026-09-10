@@ -81,7 +81,7 @@
 
   <div class="signup">
     계정이 없나요?
-    <a href="#" onclick="signup(); return false;">회원가입</a>
+   <a href="signup.html">회원가입</a>
   </div>
 
   <div id="message"></div>
@@ -124,12 +124,12 @@ async function signup() {
 
   if (error) {
     document.getElementById("message").textContent =
-      "회원가입 실패 다시해봐 ㅠ: " + error.message;
+      "너 탈락 다시시도 하거라: " + error.message;
     return;
   }
 
   document.getElementById("message").textContent =
-    "회원가입 완료! 너 좀 대단하다.. 이메일 인증하고 얼른 들어와.";
+    "너 합격.이메일 인증하고 들어와.";
 }
 </script>
 

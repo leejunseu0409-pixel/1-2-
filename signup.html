@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - 1-2알림</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .box {
+            width: 320px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px;
+            margin-bottom: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: #222;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .login {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 14px;
+        }
+
+        .login a {
+            color: #0066ff;
+            text-decoration: none;
+        }
+
+        #message {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h1>1-2알림</h1>
+
+    <input id="email" type="email" placeholder="이메일">
+
+    <input id="password" type="password" placeholder="비밀번호">
+
+    <input id="passwordConfirm" type="password" placeholder="비밀번호 확인">
+
+    <button onclick="signup()">회원가입</button>
+
+    <div class="login">
+        이미 계정이 있나요?
+        <a href="login.html">로그인</a>
+    </div>
+
+    <div id="message"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://ktirenvqucjuxxcccjof.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_2s_KfdU-eftWEEp9CLWFuQ_ZXJUZHsB";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
+
+async function signup() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const passwordConfirm = document.getElementById("passwordConfirm").value;
+    const message = document.getElementById("message");
+
+    if (!email || !password || !passwordConfirm) {
+        message.textContent = "모든 칸을 입력해줘.";
+        return;
+    }
+
+    if (password !== passwordConfirm) {
+        message.textContent = "비밀번호가 서로 달라.";
+        return;
+    }
+
+    const { error } = await supabaseClient.auth.signUp({
+        email: email,
+        password: password
+    });
+
+    if (error) {
+        message.textContent = "회원가입 실패: " + error.message;
+        return;
+    }
+
+    message.textContent =
+        "회원가입 완료! 이메일을 확인해서 인증해줘.";
+}
+</script>
+
+</body>
+</html>
