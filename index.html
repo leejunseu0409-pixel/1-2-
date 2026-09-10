@@ -6,12 +6,12 @@
 const SUPABASE_URL = "https://ktirenvqucjuxxcccjof.supabase.co/";
 const SUPABASE_ANON_KEY = "sb_publishable_2s_KfAU-eftWEEp9CLNfuQ_ZX7U7HSb";
 
-const supabase = window.supabase.createClient(
+const supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_ANON_KEY
 );
 
-supabase.auth.getSession().then(({ data: { session } }) => {
+supabaseClient.auth.getSession().then(({ data: { session } }) => {
     if (!session) {
         window.location.href = "login.html";
     }
