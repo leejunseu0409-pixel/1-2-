@@ -54,7 +54,7 @@ supabaseClient.auth.getSession().then(({ data: { session } }) => {
             width: 100%;
             box-sizing: border-box;
             padding: 12px;
-            margin-top: 10px;z
+            margin-top: 10px;
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 16px;
@@ -153,7 +153,7 @@ supabaseClient.auth.getSession().then(({ data: { session } }) => {
     if (!session) return;
 
     if (session.user.id !== ADMIN_UID) {
-        document.getElementById("writerBox").style.display = "none";
+        document.getElementById("writeBox").style.display = "none";
     }
 });
 </script>
@@ -165,7 +165,6 @@ supabaseClient.auth.getSession().then(({ data: { session } }) => {
     <div id="noticeList"></div>
 
 </div>
-
 <script>
 async function loadNotices() {
     const { data, error } = await supabaseClient
@@ -182,17 +181,17 @@ async function loadNotices() {
 
     data.forEach(notice => {
         createNotice(
+            notice.id,
             notice.title,
             notice.content,
             notice.important,
             new Date(notice.created_at).toLocaleDateString("ko-KR"),
             false,
-            ""
+            "",
             notice.category
         );
     });
 }
-
 function saveNotices() {
     const notices = [];
 
@@ -210,11 +209,12 @@ dueDate: notice.dataset.dueDate || ""
     localStorage.setItem("classNotices", JSON.stringify(notices));
 }
 
-function createNotice(title, content, important, date, edited = false, dueDate = "", category = "알림") {
+function createNotice(id, title, content, important, date, edited = false, dueDate = "", category = "알림") {
     const notice = document.createElement("div");
-
     notice.className = "notice";
-notice.dataset.dueDate = dueDate;
+    notice.dataset.id = id;
+    notice.dataset.dueDate = dueDate;
+
     if (important) {
         notice.classList.add("important");
     }
@@ -224,39 +224,35 @@ notice.dataset.dueDate = dueDate;
         <p>${content}</p>
         <div class="date">${date}</div>
         <div class="category">${category}</div>
-${dueDate ? `<div class="dday">D-${Math.ceil((new Date(dueDate) - new Date()) / 86400000)}</div>` : ""}
-        ${edited ? '<small class="edited">(수정됨)</small>' : ''}
+        ${dueDate ? `<div class="dday">D-${Math.ceil((new Date(dueDate) - new Date()) / 86400000)}</div>` : ""}
+        ${edited ? '<small class="edited">(수정됨)</small>' : ""}
         <button class="edit-button">✏️ 수정</button>
-        <button class="delete-button">🗑 삭제</button>
+        <button class="delete-button">🗑️ 삭제</button>
     `;
 
-    notice.querySelector(".delete-button").onclick = function() {
+    notice.querySelector(".delete-button").onclick = async function () {
+        const { error } = await supabaseClient
+            .from("notices")
+            .delete()
+            .eq("id", id);
+
+        if (error) {
+            console.error("공지 삭제 실패:", error);
+            alert("공지 삭제에 실패했습니다.");
+            return;
+        }
+
         notice.remove();
-        saveNotices();
     };
 
-    notice.querySelector(".edit-button").onclick = function() {
+    notice.querySelector(".edit-button").onclick = function () {
         const newTitle = prompt("새 제목을 입력하세요", title);
         if (newTitle === null) return;
 
         const newContent = prompt("새 내용을 입력하세요", content);
         if (newContent === null) return;
 
-        notice.querySelector("h2").innerText =
-            important ? "⭐ " + newTitle : newTitle;
-
-        notice.querySelector("p").innerText = newContent;
-notice.querySelector("p").innerText = newContent;
-
-notice.querySelector(".edited")?.remove();
-
-const edited = document.createElement("small");
-edited.className = "edited";
-edited.innerText = "(수정됨)";
-notice.appendChild(edited);
-
-saveNotices();
-        saveNotices();
+        editNotice(id, newTitle, newContent, category, important, dueDate);
     };
 
     document.getElementById("noticeList").prepend(notice);
