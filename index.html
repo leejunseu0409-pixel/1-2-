@@ -426,13 +426,21 @@ async function showMembers() {
         .order("name");
 
     if (error) {
-        alert("멤버를 불러오지 못했습니다.");
         console.error(error);
         return;
     }
 
-    alert("👥 Members\n\n" + data.map(user => "• " + user.name).join("\n"));
-    document.getElementById("menuList").style.display = "none";
+    const menu = document.getElementById("sideMenu");
+
+    menu.innerHTML = `
+        <h2 style="padding: 0 20px;">👥 Members</h2>
+        <div style="padding: 0 20px;">
+            ${data.map(user => `<p>• ${user.name}</p>`).join("")}
+        </div>
+        <button onclick="location.reload()">← 돌아가기</button>
+    `;
+
+    menu.classList.add("open");
 }
 
 async function logout() {
