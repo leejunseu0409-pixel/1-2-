@@ -317,6 +317,10 @@ function createNotice(id, title, content, important, date, edited = false, dueDa
 </div>
         ${dueDate ? `<div class="dday">D-${Math.ceil((new Date(dueDate) - new Date()) / 86400000)}</div>` : ""}
         ${edited ? '<small class="edited">(수정됨)</small>' : ""}
+        <div class="like-area">
+    <button class="like-button" onclick="likeNotice('${id}')">❤️ 좋아요</button>
+    <span class="like-count">0</span>
+</div>
         <button class="edit-button">✏️ 수정</button>
         <button class="delete-button">🗑️ 삭제</button>
     `;
@@ -457,6 +461,33 @@ async function logout() {
     }
 
     window.location.href = "login.html";
+}
+async function likeNotice(noticeId) {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+        alert("로그인이 필요합니다.");
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("likes")
+        .insert({
+            notice_id: noticeId,
+            user_id: session.user.id
+        });
+
+    if (error) {
+        if (error.code === "23505") {
+            alert("이미 좋아요를 눌렀습니다.");
+        } else {
+            console.error("좋아요 실패:", error);
+            alert("좋아요에 실패했습니다.");
+        }
+        return;
+    }
+
+    alert("❤️ 좋아요!");
 }
 </script>
 
