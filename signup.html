@@ -73,7 +73,7 @@
 
 <div class="box">
     <h1>1-2알림</h1>
-
+<input id="name" type="text" placeholder="학번 이름  ex) 10200 김땡땡">
     <input id="email" type="email" placeholder="이메일">
 
     <input id="password" type="password" placeholder="비밀번호">
@@ -102,12 +102,13 @@ const supabaseClient = window.supabase.createClient(
 );
 
 async function signup() {
+    const name = document.getElementById("name").value;
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
     const passwordConfirm = document.getElementById("passwordConfirm").value;
     const message = document.getElementById("message");
 
-    if (!email || !password || !passwordConfirm) {
+    if (!name || !email || !password || !passwordConfirm) {
         message.textContent = "모든 칸을 입력해줘.";
         return;
     }
@@ -117,10 +118,15 @@ async function signup() {
         return;
     }
 
-    const { error } = await supabaseClient.auth.signUp({
-        email: email,
-        password: password
-    });
+   const { error } = await supabaseClient.auth.signUp({
+    email: email,
+    password: password,
+    options: {
+        data: {
+            name: name
+        }
+    }
+});
 
     if (error) {
         message.textContent = "회원가입 실패: " + error.message;

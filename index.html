@@ -11,15 +11,19 @@ const supabaseClient = window.supabase.createClient(
     SUPABASE_ANON_KEY
 );
 
+document.documentElement.style.visibility = "hidden";
+
 supabaseClient.auth.getSession().then(({ data: { session } }) => {
     if (!session) {
         window.location.href = "login.html";
+    } else {
+        document.documentElement.style.visibility = "visible";
     }
 });
 </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>우리 반 공지 알리미</title>
+    <title>이쁜2반 공지 알리미</title>
 
     <style>
         body {
@@ -109,12 +113,18 @@ supabaseClient.auth.getSession().then(({ data: { session } }) => {
 
 <div class="container">
 
-    <h1>📢 우리 반 공지 알리미</h1>
-
+    <h1>📢 이쁜2반 공지 알리미</h1>
+<p id="userName"></p>
     <!-- 공지 작성 -->
-    <div class="write-box">
+    <div class="write-box" id="writebox>
         <h2>✏️ 공지 작성</h2>
-
+<select id="category">
+    <option value="알림">📢 알림</option>
+    <option value="수행평가">📝 수행평가</option>
+    <option value="준비물">🎒 준비물</option>
+    <option value="일정">📅 일정</option>
+    <option value="기타">📌 기타</option>
+</select>
         <input id="title" type="text" placeholder="공지 제목">
 
         <textarea id="content" placeholder="공지 내용을 입력하세요"></textarea>
@@ -128,7 +138,17 @@ supabaseClient.auth.getSession().then(({ data: { session } }) => {
             공지 등록
         </button>
     </div>
+<script>
+const ADMIN_UID = "bc21e745-a6f6-47d1-b826-e2d5ee898808";
 
+supabaseClient.auth.getSession().then(({ data: { session } }) => {
+    if (!session) return;
+
+    if (session.user.id !== ADMIN_UID) {
+        document.getElementById("writerBox").style.display = "none";
+    }
+});
+</script>
   
 
    
@@ -139,21 +159,27 @@ supabaseClient.auth.getSession().then(({ data: { session } }) => {
 </div>
 
 <script>
-function loadNotices() {
-    const saved = localStorage.getItem("classNotices");
+async function loadNotices() {
+    const { data, error } = await supabaseClient
+        .from("notices")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-    if (!saved) return;
+    if (error) {
+        console.error("공지 불러오기 실패:", error);
+        return;
+    }
 
-    const notices = JSON.parse(saved);
+    document.getElementById("noticeList").innerHTML = "";
 
-    notices.slice().reverse().forEach(notice => {
+    data.forEach(notice => {
         createNotice(
             notice.title,
             notice.content,
             notice.important,
-            notice.date, 
-            notice.edited,
-            notice.dueDate
+            new Date(notice.created_at).toLocaleDateString("ko-KR"),
+            false,
+            ""
         );
     });
 }
@@ -225,28 +251,46 @@ saveNotices();
 
     document.getElementById("noticeList").prepend(notice);
 }
-function addNotice() {
+async function addNotice() {
     const title = document.getElementById("title").value;
+    const category = document.getElementById("category").value;
     const content = document.getElementById("content").value;
     const important = document.getElementById("important").checked;
-const dueDate = document.getElementById("dueDate").value;
+
     if (title.trim() === "" || content.trim() === "") {
         alert("제목과 내용을 입력해주세요!");
         return;
     }
 
-    const today = new Date().toLocaleDateString("ko-KR");
+    const { error } = await supabaseClient
+        .from("notices")
+        .insert({
+           title: title,
+content: content,
+category: category,
+important: important 
+        });
 
-    createNotice(title, content, important, today, false, dueDate);
-
-    saveNotices();
+    if (error) {
+        console.error("공지 등록 실패:", error);
+        alert("공지 등록에 실패했습니다.");
+        return;
+    }
 
     document.getElementById("title").value = "";
     document.getElementById("content").value = "";
     document.getElementById("important").checked = false;
+
+    await loadNotices();
 }
 
 loadNotices();
+supabaseClient.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+        const name = session.user.user_metadata.name;
+        document.getElementById("userName").textContent = name + "님";
+    }
+});
 </script>
 
 </body>
