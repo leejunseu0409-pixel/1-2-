@@ -320,6 +320,7 @@ function createNotice(id, title, content, important, date, edited = false, dueDa
         <div class="like-area">
     <button class="like-button" onclick="likeNotice('${id}')">❤️ 좋아요</button>
     <span class="like-count" data-like-count="${id}" onclick="showLikeUsers('${id}')">0</span>
+    
 </div>
         <button class="edit-button">✏️ 수정</button>
         <button class="delete-button">🗑️ 삭제</button>
@@ -351,7 +352,9 @@ function createNotice(id, title, content, important, date, edited = false, dueDa
     };
 
     document.getElementById("noticeList").prepend(notice);
-}
+    loadLikeCount(id);
+} 
+
 async function addNotice() {
     const title = document.getElementById("title").value;
     const category = document.getElementById("category").value;
