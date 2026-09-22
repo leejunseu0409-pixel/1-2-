@@ -285,10 +285,22 @@ important: important
 }
 
 loadNotices();
-supabaseClient.auth.getSession().then(({ data: { session } }) => {
+supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
     if (session) {
-        const name = session.user.user_metadata.name;
-        document.getElementById("userName").textContent = name + "님";
+        let name = session.user.user_metadata?.name;
+
+        if (!name) {
+            name = prompt("사용할 이름을 입력해주세요.");
+            
+            if (name) {
+                await supabaseClient.auth.updateUser({
+                    data: { name: name }
+                });
+            }
+        }
+
+        document.getElementById("userName").textContent =
+            (name || "사용자") + "님";
     }
 });
 </script>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>비밀번호 재설정</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f6fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .box {
+            background: white;
+            width: 320px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #333;
+            color: white;
+        }
+
+        #message {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        a {
+            display: block;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>🔐 비밀번호 재설정</h2>
+
+    <div id="requestBox">
+        <p>가입한 이메일을 입력하세요.</p>
+
+        <input id="email" type="email" placeholder="이메일">
+
+        <button onclick="sendResetEmail()">재설정 이메일 보내기</button>
+    </div>
+
+    <div id="changeBox" style="display:none;">
+        <p>새 비밀번호를 입력하세요.</p>
+
+        <input id="newPassword" type="password" placeholder="새 비밀번호">
+
+        <button onclick="changePassword()">비밀번호 변경</button>
+    </div>
+
+    <p id="message"></p>
+
+    <a href="login.html">로그인으로 돌아가기</a>
+</div>
+
+<script>
+const SUPABASE_URL = "https://ktirenvqucjuxxcccjof.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_2s_KfdU-eftWEEp9CLWFuQ_ZXJUZHsB";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
+
+async function sendResetEmail() {
+    const email = document.getElementById("email").value;
+    const message = document.getElementById("message");
+
+    if (!email) {
+        message.textContent = "이메일을 입력해주세요.";
+        return;
+    }
+
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: "https://leejunseu0409-pixel.github.io/1-2/reset.html"
+    });
+
+    if (error) {
+        message.textContent = "이메일 보내기 실패: " + error.message;
+        return;
+    }
+
+    message.textContent = "비밀번호 재설정 이메일을 보냈어요!";
+}
+
+supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === "PASSWORD_RECOVERY") {
+        document.getElementById("requestBox").style.display = "none";
+        document.getElementById("changeBox").style.display = "block";
+    }
+});
+
+async function changePassword() {
+    const password = document.getElementById("newPassword").value;
+    const message = document.getElementById("message");
+
+    if (!password) {
+        message.textContent = "새 비밀번호를 입력해주세요.";
+        return;
+    }
+
+    const { error } = await supabaseClient.auth.updateUser({
+        password: password
+    });
+
+    if (error) {
+        message.textContent = "비밀번호 변경 실패: " + error.message;
+        return;
+    }
+
+    message.textContent = "비밀번호가 변경됐어요! 로그인해주세요.";
+
+    setTimeout(() => {
+        window.location.href = "login.html";
+    }, 1500);
+}
+</script>
+
+</body>
+</html>
