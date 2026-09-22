@@ -192,6 +192,41 @@ async function loadNotices() {
         );
     });
 }
+async function editNotice(id, newTitle, newContent, newCategory, newImportant) {
+    const { error } = await supabaseClient
+        .from("notices")
+        .update({
+            title: newTitle,
+            content: newContent,
+            category: newCategory,
+            important: newImportant
+        })
+        .eq("id", id);
+
+    if (error) {
+        console.error("공지 수정 실패:", error);
+        alert("공지 수정에 실패했습니다.");
+        return;
+    }
+
+    await loadNotices();
+}
+async function deleteNotice(id) {
+    if (!confirm("이 공지를 삭제할까요?")) return;
+
+    const { error } = await supabaseClient
+        .from("notices")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+        console.error("공지 삭제 실패:", error);
+        alert("공지 삭제에 실패했습니다.");
+        return;
+    }
+
+    await loadNotices();
+}
 function saveNotices() {
     const notices = [];
 
