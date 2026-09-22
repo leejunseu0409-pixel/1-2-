@@ -106,6 +106,14 @@ supabaseClient.auth.getSession().then(({ data: { session } }) => {
             background: #eeeeee;
             margin-top: 10px;
         }
+    select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    font-size: 15px;
+}
     </style>
 </head>
 
@@ -289,15 +297,21 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
     if (session) {
         let name = session.user.user_metadata?.name;
 
-        if (!name) {
-            name = prompt("사용할 이름을 입력해주세요.");
-            
-            if (name) {
-                await supabaseClient.auth.updateUser({
-                    data: { name: name }
-                });
-            }
+       if (!name || name === "사용자") {
+    const newName = prompt("사용할 이름을 입력해주세요.");
+
+    if (newName) {
+        const { data, error } = await supabaseClient.auth.updateUser({
+            data: { name: newName }
+        });
+
+        if (error) {
+            console.error("이름 저장 실패: " + error.message);
+        } else {
+            name = data.user.user_metadata.name;
         }
+    }
+}
 
         document.getElementById("userName").textContent =
             (name || "사용자") + "님";
