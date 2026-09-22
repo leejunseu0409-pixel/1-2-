@@ -521,6 +521,25 @@ async function showLikeUsers(noticeId) {
         (names.length ? names.map(name => "• " + name).join("\n") : "아직 없습니다.")
     );
 }
+async function loadLikeCount(noticeId) {
+    const { count, error } = await supabaseClient
+        .from("likes")
+        .select("*", { count: "exact", head: true })
+        .eq("notice_id", noticeId);
+
+    if (error) {
+        console.error("좋아요 수 불러오기 실패:", error);
+        return;
+    }
+
+    const countElement = document.querySelector(
+        `[data-like-count="${noticeId}"]`
+    );
+
+    if (countElement) {
+        countElement.textContent = count;
+    }
+}
 </script>
 
 </body>
