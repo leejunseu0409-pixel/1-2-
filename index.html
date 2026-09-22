@@ -319,7 +319,7 @@ function createNotice(id, title, content, important, date, edited = false, dueDa
         ${edited ? '<small class="edited">(수정됨)</small>' : ""}
         <div class="like-area">
     <button class="like-button" onclick="likeNotice('${id}')">❤️ 좋아요</button>
-    <span class="like-count">0</span>
+    <span class="like-count" data-like-count="${id}">0</span>
 </div>
         <button class="edit-button">✏️ 수정</button>
         <button class="delete-button">🗑️ 삭제</button>
@@ -477,17 +477,25 @@ async function likeNotice(noticeId) {
             user_id: session.user.id
         });
 
-    if (error) {
-        if (error.code === "23505") {
-            alert("이미 좋아요를 눌렀습니다.");
-        } else {
-            console.error("좋아요 실패:", error);
-            alert("좋아요에 실패했습니다.");
-        }
-        return;
+     if (error) {
+    if (error.code === "23505") {
+        alert("이미 좋아요를 눌렀습니다.");
+    } else {
+        console.error("좋아요 실패:", error);
+        alert("좋아요에 실패했습니다.");
     }
+    return;
+}
 
-    alert("❤️ 좋아요!");
+const count = document.querySelector(
+    `[data-like-count="${noticeId}"]`
+);
+
+if (count) {
+    count.textContent = Number(count.textContent) + 1;
+}
+
+    
 }
 </script>
 
