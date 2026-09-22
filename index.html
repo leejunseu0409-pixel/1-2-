@@ -444,7 +444,18 @@ async function showMembers() {
 }
 
 async function logout() {
-    await supabaseClient.auth.signOut();
+    if (!confirm("로그아웃하시겠습니까?")) {
+        return;
+    }
+
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) {
+        console.error("로그아웃 실패:", error);
+        alert("로그아웃에 실패했습니다.");
+        return;
+    }
+
     window.location.href = "login.html";
 }
 </script>
