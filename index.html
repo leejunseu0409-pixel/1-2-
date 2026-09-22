@@ -223,7 +223,13 @@ function createNotice(id, title, content, important, date, edited = false, dueDa
         <h2>${important ? "⭐ " : ""}${title}</h2>
         <p>${content}</p>
         <div class="date">${date}</div>
-        <div class="category">${category}</div>
+        <div class="category">
+  ${category === "알림" ? "📢 알림" :
+    category === "수행평가" ? "📄 수행평가" :
+    category === "준비물" ? "🎒 준비물" :
+    category === "일정" ? "🗓️ 일정" :
+    "📌 기타"}
+</div>
         ${dueDate ? `<div class="dday">D-${Math.ceil((new Date(dueDate) - new Date()) / 86400000)}</div>` : ""}
         ${edited ? '<small class="edited">(수정됨)</small>' : ""}
         <button class="edit-button">✏️ 수정</button>
